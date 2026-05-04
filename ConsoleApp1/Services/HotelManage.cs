@@ -6,47 +6,60 @@ public class HotelManager
 {
     public List<Hotel> Hotels {get; set;} = new List<Hotel>();
 
-    public void AddHotel(string newName, string newDescription)
-    {
-        Hotels.Add(new Hotel(newName, newDescription));
-    }
-
-    public bool RemoveHotel(string removedName)
+    public bool IsHotelExist(string name)
     {
         foreach (Hotel hotel in Hotels)
         {
-            if(hotel.Name == removedName)
+            if (hotel.Name == name)
             {
-                Hotels.Remove(hotel);
                 return true;
             }
         }
         return false;
     }
 
-    public bool ChangeHotelData(string oldname, string newname, string newdescription)
+    public void AddHotel(string newName, string newDescription)
+    {
+        Hotels.Add(new Hotel(newName, newDescription));
+    }
+
+    public void RemoveHotel(string removedName)
+    {
+        foreach (Hotel hotel in Hotels)
+        {
+            if(hotel.Name == removedName)
+            {
+                Hotels.Remove(hotel);
+            }
+        }
+    }
+
+    public void ChangeHotelData(string oldname, string newname, string newdescription)
     {
         foreach (Hotel hotel1 in Hotels)
         {
             if (hotel1.Name == oldname)
             {
-                foreach (Hotel hotel2 in Hotels)
-                {
-                    if (hotel2.Name == newname)
-                    {
-                        return false;
-                    }
-                }
-
                 hotel1.Name = newname;
                 hotel1.Description = newdescription;
             }
         }
-        return false;
     }
 
-    public Hotel GetHotelByName(string name)
+    public Hotel FindHotelByName(string name)
     {
-        return Hotels.FirstOrDefault(h => h.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        foreach (Hotel hotel in Hotels)
+        {
+            if (hotel.Name == name)
+            {
+                return hotel;
+            }
+        }
+        return new Hotel("HotelNoTFound", "HotelNotFound");
+    }
+
+    public List<Hotel> GetAllHotels()
+    {
+        return Hotels;
     }
 }

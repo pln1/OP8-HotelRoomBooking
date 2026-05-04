@@ -2,11 +2,13 @@ namespace OP8.Models;
 
 public class Booking
 {
-    public Client? Tenant {get; set;}
+    public Guid? GuidId {get; set;} = Guid.NewGuid();
+    
+    public string? ClientPhone {get; set;}
 
-    public Hotel? BookedHotel {get; set;}
+    public string? BookedHotelName {get; set;}
 
-    public Room? BookedRoom {get; set;}
+    public string? BookedRoomName {get; set;}
 
     public DateTime StartDate {get; set;}
 
@@ -16,11 +18,11 @@ public class Booking
 
     public string? Description {get; set;}
 
-    public Booking(Client tenant, Hotel bhotel, Room broom, DateTime start, DateTime end, decimal price, string description)
+    public Booking(string clientPhone, string bhotel, string broom, DateTime start, DateTime end, decimal price, string description)
     {
-        Tenant = tenant;
-        BookedHotel = bhotel;
-        BookedRoom = broom;
+        ClientPhone = clientPhone;
+        BookedHotelName = bhotel;
+        BookedRoomName = broom;
         StartDate = start;
         EndDate = end;
         TotalPrice = price;

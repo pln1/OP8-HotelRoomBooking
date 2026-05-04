@@ -6,14 +6,50 @@ public class ClientManager
 {
     public List<Client> Clients {get; set;} = new List<Client>();
 
-    public void AddClient(Client newClient)
+    public bool IsClientExist(string phone)
     {
-        Clients.Add(newClient);
+        foreach (Client client in Clients)
+        {
+            if (client.Phone == phone)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void RemoveClient(Client removedClient)
+    public void AddClient(string phone, string name, string surname)
     {
-        Clients.Remove(removedClient);
+        Clients.Add(new Client(phone, name, surname));
+    }
+
+    public void RemoveClient(string phone)
+    {
+        foreach (Client client in Clients)
+        {
+            if (client.Phone == phone)
+            {
+                Clients.Remove(client);
+            }
+        }
+    }
+
+    public Client FindClientByPhone(string phone)
+    {
+        foreach (Client client in Clients)
+        {
+            if (client.Phone == phone)
+            {
+                return client;
+            }
+        }
+
+        return new Client("ClientNotFound", "ClientNotFound", "ClientNotFound");
+    }
+
+    public List<Client> GetAllClients()
+    {
+        return Clients;
     }
 
     public void SortByName()

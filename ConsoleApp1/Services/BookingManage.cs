@@ -6,9 +6,9 @@ public class BookingManager
 {
     public List<Booking> Bookings {get; set;} = new List<Booking>();
 
-    public void AddBooking(Client tenant, Hotel bhotel, Room broom)
+    public void AddBooking(string clientPhone, string bhotel, string broom, DateTime start, DateTime end, decimal total, string description)
     {
-        Bookings.Add(new Booking(tenant, bhotel, broom, ));
+        Bookings.Add(new Booking(clientPhone, bhotel, broom, start, end, total, description));
     }
 
     public void RemoveBooking(Booking removedBooking)
