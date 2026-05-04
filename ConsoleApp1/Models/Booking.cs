@@ -3,7 +3,7 @@ namespace OP8.Models;
 public class Booking
 {
     public Guid? GuidId {get; set;} = Guid.NewGuid();
-    
+
     public string? ClientPhone {get; set;}
 
     public string? BookedHotelName {get; set;}
@@ -16,9 +16,7 @@ public class Booking
 
     public decimal TotalPrice {get; set;}
 
-    public string? Description {get; set;}
-
-    public Booking(string clientPhone, string bhotel, string broom, DateTime start, DateTime end, decimal price, string description)
+    public Booking(string clientPhone, string bhotel, string broom, DateTime start, DateTime end, decimal price)
     {
         ClientPhone = clientPhone;
         BookedHotelName = bhotel;
@@ -26,6 +24,5 @@ public class Booking
         StartDate = start;
         EndDate = end;
         TotalPrice = price;
-        Description = description;
     }
 }

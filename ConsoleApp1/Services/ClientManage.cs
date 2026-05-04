@@ -30,6 +30,43 @@ public class ClientManager
             if (client.Phone == phone)
             {
                 Clients.Remove(client);
+                break;
+            }
+        }
+    }
+
+    public void ChangeClientPhone(string oldPhone, string newPhone)
+    {
+        foreach (Client client in Clients)
+        {
+            if (client.Phone == oldPhone)
+            {
+                client.Phone = newPhone;
+                break;
+            }
+        }
+    }
+
+    public void ChangeClientName(string phone, string name)
+    {
+        foreach (Client client in Clients)
+        {
+            if (client.Phone == phone)
+            {
+                client.Name = name;
+                break;
+            }
+        }
+    }
+
+    public void ChangeClientSurname(string phone, string surname)
+    {
+        foreach (Client client in Clients)
+        {
+            if (client.Phone == phone)
+            {
+                client.Surname = surname;
+                break;
             }
         }
     }
@@ -52,13 +89,27 @@ public class ClientManager
         return Clients;
     }
 
-    public void SortByName()
+    public void SortByName(int option)
     {
-        Clients = Clients.OrderBy(s => s.Name).ToList();
+        if (option == 1)
+        {
+            Clients = Clients.OrderBy(s => s.Name).ToList();
+        }
+        else
+        {
+            Clients = Clients.OrderByDescending(s => s.Name).ToList();
+        }
     }
 
-    public void sortBySurname()
+    public void SortBySurname(int option)
     {
-        Clients = Clients.OrderBy(s => s.Surname).ToList();
+        if (option == 1)
+        {
+            Clients = Clients.OrderBy(s => s.Surname).ToList();
+        }
+        else
+        {
+            Clients = Clients.OrderByDescending(s => s.Surname).ToList();
+        }
     }
 }

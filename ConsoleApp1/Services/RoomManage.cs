@@ -20,7 +20,7 @@ public class RoomManager
         Rooms.Remove(hotelName);
     }
 
-    public void ChangeHotelData(string oldname, string newname)
+    public void ChangeHotelName(string oldname, string newname)
     {
         Rooms[newname] = Rooms[oldname];
         RemoveHotel(oldname);
@@ -36,10 +36,20 @@ public class RoomManager
         Rooms[hotelName].Remove(roomName);
     }
 
-    public void ChangeRoomData(string hotelName, string oldRoomName, string newRoomName, decimal price, string description)
+    public void ChangeRoomName(string hotelName, string oldRoomName, string newRoomName)
     {
-        Rooms[hotelName][newRoomName] = new Room(newRoomName, price, description);
+        Rooms[hotelName][newRoomName] = Rooms[hotelName][oldRoomName];
         RemoveRoom(hotelName, oldRoomName);
+    }
+
+    public void ChangeRoomPrice(string hotelname, string roomName, decimal price)
+    {
+        Rooms[hotelname][roomName].PricePerNight = price;
+    }
+
+    public void ChangeRoomDescription(string hotelname, string roomName, string description)
+    {
+        Rooms[hotelname][roomName].Description = description;
     }
 
     public Room FindRoomByName(string hotelName, string roomName)
@@ -55,5 +65,10 @@ public class RoomManager
             AllRoomsInHotel.Add(room);
         }
         return AllRoomsInHotel;
+    }
+
+    public decimal CountTotalPrice(string hotelName, string roomName, DateTime start, DateTime end)
+    {
+        return ((end - start).Days * Rooms[hotelName][roomName].PricePerNight);
     }
 }

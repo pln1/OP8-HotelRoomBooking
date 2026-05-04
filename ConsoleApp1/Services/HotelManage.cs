@@ -30,18 +30,31 @@ public class HotelManager
             if(hotel.Name == removedName)
             {
                 Hotels.Remove(hotel);
+                break;
             }
         }
     }
 
-    public void ChangeHotelData(string oldname, string newname, string newdescription)
+    public void ChangeHotelName(string oldName, string newName)
     {
         foreach (Hotel hotel1 in Hotels)
         {
-            if (hotel1.Name == oldname)
+            if (hotel1.Name == oldName)
             {
-                hotel1.Name = newname;
-                hotel1.Description = newdescription;
+                hotel1.Name = newName;
+                break;
+            }
+        }
+    }
+
+    public void ChangeHotelDescription(string hotelName, string newDescription)
+    {
+        foreach (Hotel hotel1 in Hotels)
+        {
+            if (hotel1.Name == hotelName)
+            {
+                hotel1.Description = newDescription;
+                break;
             }
         }
     }
