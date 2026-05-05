@@ -26,7 +26,7 @@ public class Hotel
         return false;
     }
 
-    public void AddRoom(string hotelName, string roomName, decimal price, string description)
+    public void AddRoom(string roomName, decimal price, string description)
     {
         Rooms.Add(new Room(roomName, price, description));
     }

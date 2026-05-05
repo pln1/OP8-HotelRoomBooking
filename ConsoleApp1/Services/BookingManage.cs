@@ -65,6 +65,19 @@ public class BookingManager
         return FreeRooms;
     }
 
+    public bool IsRoomFree(string hotelname, string roomName, DateTime start, DateTime end)
+    {
+        bool IsFree = true;
+        foreach (Booking booking in Bookings)
+        {
+            if (booking.BookedHotelName == hotelname && booking.BookedRoomName == roomName && booking.StartDate < end && booking.EndDate > start)
+            {
+                IsFree = false;
+            }
+        }
+        return IsFree;
+    }
+
     public List<Booking> FindBookingsByPhone(string phone)
     {
         List<Booking> BookingsByPhone = new List<Booking>();
@@ -102,5 +115,38 @@ public class BookingManager
             }
         }
         return TenantList;
+    }
+
+    public void RemoveHotel(string hotelName)
+    {
+        foreach (Booking booking in Bookings)
+        {
+            if (booking.BookedHotelName == hotelName)
+            {
+                Bookings.Remove(booking);
+            }
+        }
+    }
+
+    public void RemoveRoom(string hotelName, string roomName)
+    {
+        foreach (Booking booking in Bookings)
+        {
+            if (booking.BookedHotelName == hotelName && booking.BookedRoomName == roomName)
+            {
+                Bookings.Remove(booking);
+            }
+        }
+    }
+
+    public void RemoveClient(string phone)
+    {
+        foreach (Booking booking in Bookings)
+        {
+            if (booking.ClientPhone == phone)
+            {
+                Bookings.Remove(booking);
+            }
+        }
     }
 }

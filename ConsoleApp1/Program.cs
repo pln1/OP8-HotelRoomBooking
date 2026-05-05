@@ -8,10 +8,11 @@ public class Program
 {
     static void Main()
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.InputEncoding = System.Text.Encoding.UTF8;
+
         HotelManager HManager = new HotelManager();
-
         ClientManager CManager = new ClientManager();
-
         BookingManager BManager = new BookingManager();
 
         int CurrentOperation = 0;
@@ -56,7 +57,7 @@ public class Program
 
             ");
 
-            CurrentOperation = int.Parse(Console.ReadLine());
+            CurrentOperation = GetInt();
 
             switch (CurrentOperation)
             {
@@ -64,47 +65,32 @@ public class Program
                     break;
                 case 1:
                     {
-                        Console.WriteLine("Введіть унікальну назву готелю: ");
-                        string HotelName = Console.ReadLine();
+                        string HotelName = GetString("Введіть унікальну назву готелю: ");
                         if (HManager.IsHotelExist(HotelName))
                         {
                             Console.WriteLine("Готель з такою назвою вже існує!\n");
                             break;
                         }
-                        Console.WriteLine("Введіть опис готелю: ");
-                        string HotelDescription = Console.ReadLine();
+                        string HotelDescription = GetString("Введіть опис готелю: ");
                         HManager.AddHotel(HotelName, HotelDescription);
                         Console.WriteLine($"Готель {HotelName} успішно додано до бази.\n");
                         break;
                     }
                 case 2:
                     {
-                        Console.WriteLine("Введіть унікальну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.\n");
-                            break;
-                        }
+                        if (!TryGetHotel(HManager, "Введіть унікальну назву готелю: ", "Готель не знайдено.\n", out string HotelName)) break;
                         HManager.RemoveHotel(HotelName);
+                        BManager.RemoveHotel(HotelName);
                         Console.WriteLine($"Готель {HotelName} видалено.\n");
                         break;
                     }
                 case 3:
                     {
-                        Console.WriteLine("Введіть унікальну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        Console.WriteLine("Виберіть поле для внесення змін:\n[1] - Назва готелю\n[2] - Опис готелю\n");
-                        int operation = int.Parse(Console.ReadLine());
+                        if (!TryGetHotel(HManager, "Введіть унікальну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
+                        int operation = GetInt("Виберіть поле для внесення змін:\n[1] - Назва готелю\n[2] - Опис готелю\n");
                         if (operation == 1)
                         {
-                            Console.WriteLine("Введіть нову назву готелю: ");
-                            string NewName = Console.ReadLine();
+                            string NewName = GetString("Введіть нову назву готелю: ");
                             if (HManager.IsHotelExist(NewName))
                             {
                                 Console.WriteLine("Готель з такою назвою вже існує!\n");
@@ -114,8 +100,7 @@ public class Program
                         }
                         else if (operation == 2)
                         {
-                            Console.WriteLine("Введіть новий опис готелю: ");
-                            string NewDescription = Console.ReadLine();
+                            string NewDescription = GetString("Введіть новий опис готелю: ");
                             HManager.ChangeHotelDescription(HotelName, NewDescription);
                         }
                         else
@@ -128,16 +113,8 @@ public class Program
                     }
                 case 4:
                     {
-                        Console.WriteLine("Введіть точну унікальну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        Hotel hotel = HManager.FindHotelByName(HotelName);
-                        Console.WriteLine($"Назва: {hotel.Name}\n");
-                        Console.WriteLine($"Опис: {hotel.Description}\n");
+                        if (!TryGetHotel(HManager, "Введіть точну унікальну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
+                        PrintHotel(HManager.FindHotelByName(HotelName));
                         break;
                     }
                 case 5:
@@ -145,91 +122,53 @@ public class Program
                         Console.WriteLine("Всі готелі:\n");
                         foreach (Hotel hotel in HManager.GetAllHotels())
                         {
-                            Console.WriteLine($"Назва: {hotel.Name}\n");
-                            Console.WriteLine($"Кількість місць: {hotel.GetAllRoomsInHotel().Count}\n");
-                            Console.WriteLine($"Опис: {hotel.Description}\n");
+                            PrintHotel(hotel, true);
                         }
                         break;
                     }
                 case 6:
                     {
-                        Console.WriteLine("Введіть ключове слово для пошуку: ");
-                        string keyword = Console.ReadLine();
+                        string keyword = GetString("Введіть ключове слово для пошуку: ");
                         SearchByHotel SByHotel = new SearchByHotel();
                         Console.WriteLine("Результат пошуку:\n");
                         foreach (Hotel hotel in SByHotel.SearchByKeyword(HManager.Hotels, keyword))
                         {
-                            Console.WriteLine($"Назва: {hotel.Name}\n");
-                            Console.WriteLine($"Опис: {hotel.Description}\n");
+                            PrintHotel(hotel);
                         }
                         break;
                     }
                 case 7:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        Console.WriteLine("Введіть назву нового номеру: ");
-                        string RoomName = Console.ReadLine();
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
+                        string RoomName = GetString("Введіть назву нового номеру: ");
                         if (HManager.FindHotelByName(HotelName).IsRoomExist(RoomName))
                         {
                             Console.WriteLine("Такий номер вже існує.\n");
                             break;
                         }
-                        Console.WriteLine("Введіть ціну номера за ніч: \n");
-                        decimal RoomPrice = decimal.Parse(Console.ReadLine());
-                        Console.WriteLine("Введіть опис номеру: \n");
-                        string RoomDescription = Console.ReadLine();
-                        HManager.FindHotelByName(HotelName).AddRoom(HotelName, RoomName, RoomPrice, RoomDescription);
+                        decimal RoomPrice = GetDecimal("Введіть ціну номера за ніч: \n");
+                        string RoomDescription = GetString("Введіть опис номеру: \n");
+                        HManager.FindHotelByName(HotelName).AddRoom(RoomName, RoomPrice, RoomDescription);
                         Console.WriteLine($"Кімнату {RoomName} успішно додано до готелю {HotelName}.\n");
                         break;
                     }
                 case 8:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        Console.WriteLine("Введіть назву номеру: ");
-                        string RoomName = Console.ReadLine();
-                        if (!HManager.FindHotelByName(HotelName).IsRoomExist(RoomName))
-                        {
-                            Console.WriteLine("Такий номер не існує.\n");
-                            break;
-                        }
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
+                        if (!TryGetRoom(HManager, HotelName, "Введіть назву номеру: ", "Такий номер не існує.\n", out string RoomName)) break;
                         HManager.FindHotelByName(HotelName).RemoveRoom(RoomName);
+                        BManager.RemoveRoom(HotelName, RoomName);
                         Console.WriteLine($"Номер {RoomName} успішно видалено.\n");
                         break;
                     }
                 case 9:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        Console.WriteLine("Введіть назву номеру: ");
-                        string RoomName = Console.ReadLine();
-                        if (!HManager.FindHotelByName(HotelName).IsRoomExist(RoomName))
-                        {
-                            Console.WriteLine("Такий номер не існує.\n");
-                            break;
-                        }
-                        Console.WriteLine("Виберіть поле для внесення змін:\n[1] - Назва номеру\n[2] - Ціна за добу\n[3] - Опис\n");
-                        int operation = int.Parse(Console.ReadLine());
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
+                        if (!TryGetRoom(HManager, HotelName, "Введіть назву номеру: ", "Такий номер не існує.\n", out string RoomName)) break;
+                        int operation = GetInt("Виберіть поле для внесення змін:\n[1] - Назва номеру\n[2] - Ціна за добу\n[3] - Опис\n");
                         if (operation == 1)
                         {
-                            Console.WriteLine("Введіть нову назву номеру: ");
-                            string NewRoomName = Console.ReadLine();
+                            string NewRoomName = GetString("Введіть нову назву номеру: ");
                             if (HManager.FindHotelByName(HotelName).IsRoomExist(NewRoomName))
                             {
                                 Console.WriteLine("Такий номер існує.\n");
@@ -239,14 +178,12 @@ public class Program
                         }
                         else if (operation == 2)
                         {
-                            Console.WriteLine("Введіть нову ціну номеру за добу: ");
-                            decimal NewPrice = decimal.Parse(Console.ReadLine());
+                            decimal NewPrice = GetDecimal("Введіть нову ціну номеру за добу: ");
                             HManager.FindHotelByName(HotelName).ChangeRoomPrice(RoomName, NewPrice);
                         }
                         else if (operation == 3)
                         {
-                            Console.WriteLine("Введіть новий опис номеру: ");
-                            string NewDescription = Console.ReadLine();
+                            string NewDescription = GetString("Введіть новий опис номеру: ");
                             HManager.FindHotelByName(HotelName).ChangeRoomDescription(RoomName, NewDescription);
                         }
                         else
@@ -258,89 +195,49 @@ public class Program
                     }
                 case 10:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-
-                        Console.WriteLine("Введіть точну назву номеру: ");
-                        string RoomName = Console.ReadLine();
-                        if (!HManager.FindHotelByName(HotelName).IsRoomExist(RoomName))
-                        {
-                            Console.WriteLine("Номер не знайдено.");
-                            break;
-                        }
-                        Room room = HManager.FindHotelByName(HotelName).FindRoomByName(RoomName);
-                        Console.WriteLine($"Назва: {room.Name}\n");
-                        Console.WriteLine($"Ціна за ніч: {room.PricePerNight}\n");
-                        Console.WriteLine($"Опис: {room.Description}\n");
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
+                        if (!TryGetRoom(HManager, HotelName, "Введіть точну назву номеру: ", "Номер не знайдено.", out string RoomName)) break;
+                        PrintRoom(HManager.FindHotelByName(HotelName).FindRoomByName(RoomName));
                         break;
                     }
                 case 11:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
                         foreach (Room room in HManager.FindHotelByName(HotelName).GetAllRoomsInHotel())
                         {
-                            Console.WriteLine($"Назва: {room.Name}\n");
-                            Console.WriteLine($"Ціна за ніч: {room.PricePerNight}\n");
-                            Console.WriteLine($"Опис: {room.Description}\n");
+                            PrintRoom(room);
                         }
                         break;
                     }
                 case 12:
                     {
-                        Console.WriteLine("Введіть номер телефону: ");
-                        string ClientPhone = Console.ReadLine();
+                        string ClientPhone = GetString("Введіть номер телефону: ");
                         if (CManager.IsClientExist(ClientPhone))
                         {
                             Console.WriteLine("Такий клієнт вже зареєстрований.");
                             break;
                         }
-                        Console.WriteLine("Введіть ім'я клієнта: ");
-                        string ClientName = Console.ReadLine();
-                        Console.WriteLine("Введіть прізвище клієнта: ");
-                        string ClientSurname = Console.ReadLine();
+                        string ClientName = GetString("Введіть ім'я клієнта: ");
+                        string ClientSurname = GetString("Введіть прізвище клієнта: ");
                         CManager.AddClient(ClientPhone, ClientName, ClientSurname);
                         Console.WriteLine("Кліента успішно додано до бази.\n");
                         break;
                     }
                 case 13:
                     {
-                        Console.WriteLine("Введіть номер телефону: ");
-                        string ClientPhone = Console.ReadLine();
-                        if (!CManager.IsClientExist(ClientPhone))
-                        {
-                            Console.WriteLine("Такий клієнт не зареєстрований.");
-                            break;
-                        }
+                        if (!TryGetClient(CManager, "Введіть номер телефону: ", "Такий клієнт не зареєстрований.", out string ClientPhone)) break;
                         CManager.RemoveClient(ClientPhone);
+                        BManager.RemoveClient(ClientPhone);
                         Console.WriteLine("Кліента успішно видалено.\n");
                         break;
                     }
                 case 14:
                     {
-                        Console.WriteLine("Введіть номер телефону: ");
-                        string ClientPhone = Console.ReadLine();
-                        if (!CManager.IsClientExist(ClientPhone))
-                        {
-                            Console.WriteLine("Клієнт не зареєстрований.");
-                            break;
-                        }
-                        Console.WriteLine("Виберіть поле для внесення змін:\n[1] - Номер телефону\n[2] - Ім'я\n[3] - Прізвище\n");
-                        int operation = int.Parse(Console.ReadLine());
+                        if (!TryGetClient(CManager, "Введіть номер телефону: ", "Клієнт не зареєстрований.", out string ClientPhone)) break;
+                        int operation = GetInt("Виберіть поле для внесення змін:\n[1] - Номер телефону\n[2] - Ім'я\n[3] - Прізвище\n");
                         if (operation == 1)
                         {
-                            Console.WriteLine("Введіть новий номер телефону: ");
-                            string NewPhone = Console.ReadLine();
+                            string NewPhone = GetString("Введіть новий номер телефону: ");
                             if (CManager.IsClientExist(NewPhone))
                             {
                                 Console.WriteLine("Такий кліент вже зареєстрований.\n");
@@ -351,14 +248,12 @@ public class Program
                         }
                         else if (operation == 2)
                         {
-                            Console.WriteLine("Введіть нове ім'я: ");
-                            string NewName = Console.ReadLine();
+                            string NewName = GetString("Введіть нове ім'я: ");
                             CManager.ChangeClientName(ClientPhone, NewName);
                         }
                         else if (operation == 3)
                         {
-                            Console.WriteLine("Введіть нове прізвище: ");
-                            string NewSurname = Console.ReadLine();
+                            string NewSurname = GetString("Введіть нове прізвище: ");
                             CManager.ChangeClientSurname(ClientPhone, NewSurname);
                         }
                         else
@@ -370,13 +265,7 @@ public class Program
                     }
                 case 15:
                     {
-                        Console.WriteLine("Введіть номер телефону: ");
-                        string ClientPhone = Console.ReadLine();
-                        if (!CManager.IsClientExist(ClientPhone))
-                        {
-                            Console.WriteLine("Клієнт не зареєстрований.");
-                            break;
-                        }
+                        if (!TryGetClient(CManager, "Введіть номер телефону: ", "Клієнт не зареєстрований.", out string ClientPhone)) break;
                         Client client = CManager.FindClientByPhone(ClientPhone);
                         Console.WriteLine($"Ім'я: {client.Name}\n");
                         Console.WriteLine($"Прізвище: {client.Surname}\n");
@@ -386,16 +275,13 @@ public class Program
                     {
                         foreach (Client client in CManager.GetAllClients())
                         {
-                            Console.WriteLine($"Телефон: {client.Phone}\n");
-                            Console.WriteLine($"Ім'я: {client.Name}\n");
-                            Console.WriteLine($"Прізвище: {client.Surname}\n");
+                            PrintClient(client);
                         }
                         break;
                     }
                 case 17:
                     {
-                        Console.WriteLine("Виберіть тип сортування:\n[1] - За зростанням\n[2] - За спаданням\n");
-                        int ascdesc = int.Parse(Console.ReadLine());
+                        int ascdesc = GetInt("Виберіть тип сортування:\n[1] - За зростанням\n[2] - За спаданням\n");
                         if (ascdesc != 1 && ascdesc != 2)
                         {
                             Console.WriteLine("Неправильна операція.\n");
@@ -407,8 +293,7 @@ public class Program
                     }
                 case 18:
                     {
-                        Console.WriteLine("Виберіть тип сортування:\n[1] - За зростанням\n[2] - За спаданням\n");
-                        int ascdesc = int.Parse(Console.ReadLine());
+                        int ascdesc = GetInt("Виберіть тип сортування:\n[1] - За зростанням\n[2] - За спаданням\n");
                         if (ascdesc != 1 && ascdesc != 2)
                         {
                             Console.WriteLine("Неправильна операція.\n");
@@ -420,80 +305,34 @@ public class Program
                     }
                 case 19:
                     {
-                        Console.WriteLine("Введіть ключове слово для пошуку: ");
-                        string keyword = Console.ReadLine();
+                        string keyword = GetString("Введіть ключове слово для пошуку: ");
                         SearchByClient SByClient = new SearchByClient();
                         Console.WriteLine("Результат пошуку:\n");
                         foreach (Client client in SByClient.SearchByKeyword(CManager.Clients, keyword))
                         {
-                            Console.WriteLine($"Телефон: {client.Phone}\n");
-                            Console.WriteLine($"Ім'я: {client.Name}\n");
-                            Console.WriteLine($"Прізвище: {client.Surname}\n");
+                            PrintClient(client);
                         }
                         break;
                     }
                 case 20:
                     {
-                        Console.WriteLine("Введіть номер телефону кліента: \n");
-                        string ClientPhone = Console.ReadLine();
-                        if (!CManager.IsClientExist(ClientPhone))
-                        {
-                            Console.WriteLine("Клієнт не зареєстрований.");
-                            break;
-                        }
-                        Console.WriteLine("Введіть точну назву готелю: \n");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        Console.WriteLine("Введіть точну назву номеру: \n");
-                        string RoomName = Console.ReadLine();
-                        if (!HManager.FindHotelByName(HotelName).IsRoomExist(RoomName))
-                        {
-                            Console.WriteLine("Номер не знайдено.");
-                            break;
-                        }
-                        string format = "dd.MM.yyyy";
-                        Console.WriteLine($"Введіть дату заїзду у форматі {format}: ");
-                        DateTime StartDate;
-                        while (!DateTime.TryParseExact(Console.ReadLine(), format, null, System.Globalization.DateTimeStyles.None, out StartDate))
-                        {
-                            Console.WriteLine($"Помилка! Введіть дату саме у форматі {format} (наприклад, 10.05.2026).\n");
-                            Console.WriteLine($"Введіть дату заїзду у форматі {format}: ");
-                        }
-                        if (StartDate.Date < DateTime.Now.Date)
-                        {
-                            Console.WriteLine("Помилка: Не можна забронювати номер у минулому!");
-                            break;
-                        }
-                        Console.WriteLine($"Введіть дату виїзду у форматі {format}: ");
-                        DateTime EndDate;
-                        while (!DateTime.TryParseExact(Console.ReadLine(), format, null, System.Globalization.DateTimeStyles.None, out EndDate))
-                        {
-                            Console.WriteLine($"Помилка! Введіть дату саме у форматі {format} (наприклад, 10.05.2026).\n");
-                            Console.WriteLine($"Введіть дату виїзду у форматі {format}: ");
-                        }
-                        if (StartDate.Date >= EndDate.Date)
-                        {
-                            Console.WriteLine("Дата виїзду повинна бути пізніше ніж дата заїзду і не бути одним днем.\n");
-                            break;
-                        }
+                        if (!TryGetClient(CManager, "Введіть номер телефону кліента: \n", "Клієнт не зареєстрований.", out string ClientPhone)) break;
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: \n", "Готель не знайдено.", out string HotelName)) break;
+                        if (!TryGetRoom(HManager, HotelName, "Введіть точну назву номеру: \n", "Номер не знайдено.", out string RoomName)) break;
+                        if (!TryGetBookingDates(out DateTime StartDate, out DateTime EndDate)) break;
                         decimal Price = HManager.FindHotelByName(HotelName).CountTotalPrice(RoomName, StartDate, EndDate);
+                        if (!BManager.IsRoomFree(HotelName, RoomName, StartDate, EndDate))
+                        {
+                            Console.WriteLine("Номер на цей період вже заброньовано!\n");
+                            break;
+                        }
                         BManager.AddBooking(ClientPhone, HotelName, RoomName, StartDate, EndDate, Price);
                         Console.WriteLine($"Номер {RoomName} у готелі {HotelName} успішно заброньовано!\n");
                         break;
                     }
                 case 21:
                     {
-                        Console.WriteLine("Введіть номер телефону, на який робилось бронювання: ");
-                        string ClientPhone = Console.ReadLine();
-                        if (!CManager.IsClientExist(ClientPhone))
-                        {
-                            Console.WriteLine("Клієнт не зареєстрований.");
-                            break;
-                        }
+                        if (!TryGetClient(CManager, "Введіть номер телефону, на який робилось бронювання: ", "Клієнт не зареєстрований.", out string ClientPhone)) break;
                         List<Booking> bookings = BManager.FindBookingsByPhone(ClientPhone);
                         if (bookings.Count == 0)
                         {
@@ -510,10 +349,10 @@ public class Program
                             Період бронювання: {bookings[i].StartDate:dd.MM.yyyy} - {bookings[i].EndDate:dd.MM.yyyy}
                             ");
                         }
-                        int option = int.Parse(Console.ReadLine());
-                        if (option-1 >= 0 && option-1 < bookings.Count)
+                        int option = GetInt();
+                        if (option - 1 >= 0 && option - 1 < bookings.Count)
                         {
-                            BManager.RemoveBooking(bookings[option-1]);
+                            BManager.RemoveBooking(bookings[option - 1]);
                         }
                         else
                         {
@@ -523,108 +362,35 @@ public class Program
                     }
                 case 22:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
                         foreach (string RoomName in BManager.FindBookedRoomsInHotel(HotelName))
                         {
-                            Room room = HManager.FindHotelByName(HotelName).FindRoomByName(RoomName);
-                            Console.WriteLine($"Назва: {room.Name}\n");
-                            Console.WriteLine($"Ціна за ніч: {room.PricePerNight}\n");
-                            Console.WriteLine($"Опис: {room.Description}\n");
+                            PrintRoom(HManager.FindHotelByName(HotelName).FindRoomByName(RoomName));
                         }
                         break;
                     }
                 case 23:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: ");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: ", "Готель не знайдено.", out string HotelName)) break;
                         foreach (string RoomName in BManager.FindFreeRoomsInHotel(HotelName, HManager.FindHotelByName(HotelName).GetAllRoomsInHotel()))
                         {
-                            Room room = HManager.FindHotelByName(HotelName).FindRoomByName(RoomName);
-                            Console.WriteLine($"Назва: {room.Name}\n");
-                            Console.WriteLine($"Ціна за ніч: {room.PricePerNight}\n");
-                            Console.WriteLine($"Опис: {room.Description}\n");
+                            PrintRoom(HManager.FindHotelByName(HotelName).FindRoomByName(RoomName));
                         }
                         break;
                     }
                 case 24:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: \n");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        Console.WriteLine("Введіть точну назву номеру: \n");
-                        string RoomName = Console.ReadLine();
-                        if (!HManager.FindHotelByName(HotelName).IsRoomExist(RoomName))
-                        {
-                            Console.WriteLine("Номер не знайдено.");
-                            break;
-                        }
-                        string format = "dd.MM.yyyy";
-                        Console.WriteLine($"Введіть дату заїзду у форматі {format}: ");
-                        DateTime StartDate;
-                        while (!DateTime.TryParseExact(Console.ReadLine(), format, null, System.Globalization.DateTimeStyles.None, out StartDate))
-                        {
-                            Console.WriteLine($"Помилка! Введіть дату саме у форматі {format} (наприклад, 10.05.2026).\n");
-                            Console.WriteLine($"Введіть дату заїзду у форматі {format}: ");
-                        }
-                        if (StartDate.Date < DateTime.Now.Date)
-                        {
-                            Console.WriteLine("Помилка: Не можна забронювати номер у минулому!");
-                            break;
-                        }
-                        Console.WriteLine($"Введіть дату виїзду у форматі {format}: ");
-                        DateTime EndDate;
-                        while (!DateTime.TryParseExact(Console.ReadLine(), format, null, System.Globalization.DateTimeStyles.None, out EndDate))
-                        {
-                            Console.WriteLine($"Помилка! Введіть дату саме у форматі {format} (наприклад, 10.05.2026).\n");
-                            Console.WriteLine($"Введіть дату виїзду у форматі {format}: ");
-                        }
-                        if (StartDate.Date >= EndDate.Date)
-                        {
-                            Console.WriteLine("Дата виїзду повинна бути пізніше ніж дата заїзду і не бути одним днем.\n");
-                            break;
-                        }
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: \n", "Готель не знайдено.", out string HotelName)) break;
+                        if (!TryGetRoom(HManager, HotelName, "Введіть точну назву номеру: \n", "Номер не знайдено.", out string RoomName)) break;
+                        if (!TryGetBookingDates(out DateTime StartDate, out DateTime EndDate)) break;
                         Console.WriteLine($"Точна вартість бронювання складатиме {HManager.FindHotelByName(HotelName).CountTotalPrice(RoomName, StartDate, EndDate)}.\n");
                         break;
                     }
                 case 25:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: \n");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
-                        string format = "dd.MM.yyyy";
-                        Console.WriteLine($"Введіть дату початку у форматі {format}: ");
-                        DateTime StartDate;
-                        while (!DateTime.TryParseExact(Console.ReadLine(), format, null, System.Globalization.DateTimeStyles.None, out StartDate))
-                        {
-                            Console.WriteLine($"Помилка! Введіть дату саме у форматі {format} (наприклад, 10.05.2026).\n");
-                            Console.WriteLine($"Введіть дату початку у форматі {format}: ");
-                        }
-                        Console.WriteLine($"Введіть дату кінця у форматі {format}: ");
-                        DateTime EndDate;
-                        while (!DateTime.TryParseExact(Console.ReadLine(), format, null, System.Globalization.DateTimeStyles.None, out EndDate))
-                        {
-                            Console.WriteLine($"Помилка! Введіть дату саме у форматі {format} (наприклад, 10.05.2026).\n");
-                            Console.WriteLine($"Введіть дату кінця у форматі {format}: ");
-                        }
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: \n", "Готель не знайдено.", out string HotelName)) break;
+                        DateTime StartDate = GetDate("Введіть дату початку");
+                        DateTime EndDate = GetDate("Введіть дату кінця");
                         if (StartDate.Date > EndDate.Date)
                         {
                             Console.WriteLine("Дата кінця повинна бути пізніше ніж дата початку.\n");
@@ -640,20 +406,11 @@ public class Program
                     }
                 case 26:
                     {
-                        Console.WriteLine("Введіть точну назву готелю: \n");
-                        string HotelName = Console.ReadLine();
-                        if (!HManager.IsHotelExist(HotelName))
-                        {
-                            Console.WriteLine("Готель не знайдено.");
-                            break;
-                        }
+                        if (!TryGetHotel(HManager, "Введіть точну назву готелю: \n", "Готель не знайдено.", out string HotelName)) break;
                         Console.WriteLine("Список усіх людей, що забронювали номер у готелі:\n");
                         foreach (string phone in BManager.GetTenant(HotelName))
                         {
-                            Client client = CManager.FindClientByPhone(phone);
-                            Console.WriteLine($"Телефон: {client.Phone}\n");
-                            Console.WriteLine($"Ім'я: {client.Name}\n");
-                            Console.WriteLine($"Прізвище: {client.Surname}\n");
+                            PrintClient(CManager.FindClientByPhone(phone));
                         }
                         break;
                     }
@@ -662,5 +419,123 @@ public class Program
                     break;
             }
         } while (CurrentOperation != 0);
+    }
+
+    static string GetString(string prompt = null)
+    {
+        if (prompt != null) Console.WriteLine(prompt);
+        return Console.ReadLine();
+    }
+
+    static int GetInt(string prompt = null)
+    {
+        if (prompt != null) Console.WriteLine(prompt);
+        int result;
+        while (!int.TryParse(Console.ReadLine(), out result))
+        {
+            Console.WriteLine("Помилка! Введіть ціле число.");
+            if (prompt != null) Console.WriteLine(prompt);
+        }
+        return result;
+    }
+
+    static decimal GetDecimal(string prompt = null)
+    {
+        if (prompt != null) Console.WriteLine(prompt);
+        decimal result;
+        while (!decimal.TryParse(Console.ReadLine(), out result))
+        {
+            Console.WriteLine("Помилка! Введіть коректне числове значення.");
+            if (prompt != null) Console.WriteLine(prompt);
+        }
+        return result;
+    }
+
+    static DateTime GetDate(string prompt)
+    {
+        string format = "dd.MM.yyyy";
+        Console.WriteLine($"{prompt} у форматі {format}: ");
+        DateTime date;
+        while (!DateTime.TryParseExact(Console.ReadLine(), format, null, System.Globalization.DateTimeStyles.None, out date))
+        {
+            Console.WriteLine($"Помилка! Введіть дату саме у форматі {format} (наприклад, 10.05.2026).\n");
+            Console.WriteLine($"{prompt} у форматі {format}: ");
+        }
+        return date;
+    }
+
+    static bool TryGetBookingDates(out DateTime start, out DateTime end)
+    {
+        start = GetDate("Введіть дату заїзду");
+        if (start.Date < DateTime.Now.Date)
+        {
+            Console.WriteLine("Помилка: Не можна забронювати номер у минулому!");
+            end = DateTime.MinValue;
+            return false;
+        }
+        end = GetDate("Введіть дату виїзду");
+        if (start.Date >= end.Date)
+        {
+            Console.WriteLine("Дата виїзду повинна бути пізніше ніж дата заїзду і не бути одним днем.\n");
+            return false;
+        }
+        return true;
+    }
+
+    static bool TryGetHotel(HotelManager hm, string prompt, string errorMsg, out string name)
+    {
+        name = GetString(prompt);
+        if (!hm.IsHotelExist(name))
+        {
+            Console.WriteLine(errorMsg);
+            return false;
+        }
+        return true;
+    }
+
+    static bool TryGetRoom(HotelManager hm, string hotelName, string prompt, string errorMsg, out string roomName)
+    {
+        roomName = GetString(prompt);
+        if (!hm.FindHotelByName(hotelName).IsRoomExist(roomName))
+        {
+            Console.WriteLine(errorMsg);
+            return false;
+        }
+        return true;
+    }
+
+    static bool TryGetClient(ClientManager cm, string prompt, string errorMsg, out string phone)
+    {
+        phone = GetString(prompt);
+        if (!cm.IsClientExist(phone))
+        {
+            Console.WriteLine(errorMsg);
+            return false;
+        }
+        return true;
+    }
+
+    static void PrintHotel(Hotel hotel, bool includeRooms = false)
+    {
+        Console.WriteLine($"Назва: {hotel.Name}\n");
+        if (includeRooms)
+        {
+            Console.WriteLine($"Кількість місць: {hotel.GetAllRoomsInHotel().Count}\n");
+        }
+        Console.WriteLine($"Опис: {hotel.Description}\n");
+    }
+
+    static void PrintRoom(Room room)
+    {
+        Console.WriteLine($"Назва: {room.Name}\n");
+        Console.WriteLine($"Ціна за ніч: {room.PricePerNight}\n");
+        Console.WriteLine($"Опис: {room.Description}\n");
+    }
+
+    static void PrintClient(Client client)
+    {
+        Console.WriteLine($"Телефон: {client.Phone}\n");
+        Console.WriteLine($"Ім'я: {client.Name}\n");
+        Console.WriteLine($"Прізвище: {client.Surname}\n");
     }
 }
