@@ -342,6 +342,7 @@ public class Program
                         Console.WriteLine("Виберіть бронювання зі списку для видалення:\n");
                         for (int i = 0; i < bookings.Count; ++i)
                         {
+                            Console.WriteLine("=============================");
                             Console.WriteLine(@$"[{i+1}]
                             Готель: {bookings[i].BookedHotelName}
                             Номер: {bookings[i].BookedRoomName}
@@ -398,6 +399,7 @@ public class Program
                         }
                         foreach (Booking booking in BManager.FindBookingsInPeriod(HotelName, StartDate, EndDate))
                         {
+                            Console.WriteLine("=============================");
                             Console.WriteLine($"Назва кімнати: {booking.BookedRoomName}\n");
                             Console.WriteLine($"Номер кліента: {booking.ClientPhone}\n");
                             Console.WriteLine($"Вартість: {booking.TotalPrice}\n");
@@ -517,6 +519,7 @@ public class Program
 
     static void PrintHotel(Hotel hotel, bool includeRooms = false)
     {
+        Console.WriteLine("=============================");
         Console.WriteLine($"Назва: {hotel.Name}\n");
         if (includeRooms)
         {
@@ -527,6 +530,7 @@ public class Program
 
     static void PrintRoom(Room room)
     {
+        Console.WriteLine("=============================");
         Console.WriteLine($"Назва: {room.Name}\n");
         Console.WriteLine($"Ціна за ніч: {room.PricePerNight}\n");
         Console.WriteLine($"Опис: {room.Description}\n");
@@ -534,6 +538,7 @@ public class Program
 
     static void PrintClient(Client client)
     {
+        Console.WriteLine("=============================");
         Console.WriteLine($"Телефон: {client.Phone}\n");
         Console.WriteLine($"Ім'я: {client.Name}\n");
         Console.WriteLine($"Прізвище: {client.Surname}\n");
